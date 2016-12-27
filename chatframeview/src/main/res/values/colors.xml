@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="reply_frame_bg">#EBEBEB</color>
+    <color name="text_foreground_color">#00E3E3</color>
+
+    <color name="send_btn_clickable">#11B6F4</color>
+    <color name="send_btn_pressed">#069DD5</color>
+    <color name="send_btn_unclickable">#DCDEE2</color>
+    <color name="emoji_press">#909090</color>
+</resources>

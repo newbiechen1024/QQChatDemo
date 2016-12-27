@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="EmojiTextView">
+        <attr name="emojiSize" format="dimension"/>
+        <attr name="useDefaultMode" format="boolean"/>
+        <attr name="emojiOffset" format="dimension">
+        </attr>
+    </declare-styleable>
+
+</resources>

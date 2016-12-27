@@ -1,0 +1,267 @@
+
+二、通过DrawableSpan创建EmojiSpan
+
+三、当输入文字的时候。
+
+1、首先删除全部的EmojiSpan
+2、获取string的每个char进行检索
+3、用EmojiSpan置换Emoji的数据s
+
+
+
+
+一、问题
+
+1、源码中使用SparseIntArray作为容器。（未解决）
+问：SparseIntArray的优点是什么，跟HashMap相比。
+
+二、制作过程
+
+1、首先获取一个Emoji图片，然后制作制作一个EmojiSpan。
+EmojiSpan的功能，默认居中于TextView，并且Emoji的大小，随着TextView的大小改变。
+（源代码设置了弱引用，这个可以试着使用）
+现在有两种方案来设置何时获取Emoji图片。
+1、第一种类似源码一样，全部加载到一个map里面去。
+个人认为这种方法不太妥当 0 0。
+原因：
+1、首先需要创建映射表0 0，这一步就需要很浪费时间了。
+2、根据面向对象思想，直接将emoji的code传给EmojiSpan就可以了，而不是传递具体的图片。
+
+所以个人采用第二种方法。
+通过反射获取，图片的Drawable。
+遇到的问题：如何将16进制的unicode编码转化成字符形式。
+首先我们得知道Emoji是如何显示在TextView上的（同文字的显示）。
+1、确定每个Emoji对应的16进制编码，然后将该16进制编码转换成char。
+（char这里要注意了，首先char是2字节，就表示每个字符最大的十进制是2^16 = 65536，
+并且默认使用Charcter.toChars(int code)将十进制数转换成char[]，内部是将该code与
+UTF-16编码进行匹配，然后寻找与其符合的字，关于匹配到了什么这就不知道了 猜测应该是将16进制数转化弄成char的数据结构 2进制，重要的是数据已经被转换了
+，然后经过String进行转换数据）
+表示，自己创建的字符，最好是在1字节内，也就是不超过65536，还有就是不要将编码与自带的字体相冲突
+2、如果是文字的话，就会将char交给String，然后String根据char输出相应的字体。
+（也就是说，String通过char识别特殊编码，如果直接使用int则会将int转化成10进制并输出）
+
+了解了这一点我们就知道如何将已转化成char的Emoji编码，重新转换成16进制的字符串
+1、从String中提取出属于Emoji的char。
+如何提取出char呢？，首先将char通过Character.codePointAt()，判断其10进制数区域
+是否在Emoji编码的区域内。如果是则进行下一步。
+2、将获取的10进制数，通过Integer.toHexString()转换成16进制数，并输出。
+（完）
+EmojiSpan的制作流程
+1、首先需要有缓存，根据DynamicDrawableSpan源码，是使用WeakPrefence，实现短暂性的缓存。
+2、通过getResource.getIdentifier()获取外部的资源
+3、一定要重写Span的构造方法，并令super(ALIGN_BASELINE)//表示居中
+如果不设置的话，并且重写Span的draw()方法时候会出bug：channel ...一堆的。
+Span默认是使用ALIGN_BOTTOM。
+关于Span的draw()方法的参数。。。
+关于源码中paint.getFontMetricsInt()是获取FontMetrix。
+那么FontMetrix是什么呢
+http://mikewang.blog.51cto.com/3826268/871765
+其中draw()的参数又代表什么意思呢？
+http://blog.cgsdream.org/2016/07/06/custom-android-span/
+
+三、获取到的知识
+
+1、Drawable，setBounds(int l,int t,int r,int b)的作用
+//图片填充的大小(类似fitXY)和在Canvas上的绘制区域，绘制区域相对于canvas的位置（受Canvas的位置约束）
+drawable.setBounds(-100,-100,100,100);
+
+2、如何通过反射获取res/文件下的数据
+
+方法一：使用反射（先去看一下JAVA编程思想理解一下原理 - -）
+(现在想到的原理有，反射与构造方法与静态方法。
+如何通过反射获取类的Filed，Constructure,Method，方法的参数为什么要这么设置)
+
+方法二：使用Resource.getIdentifier(String name,String deType,String packageName);
+name:文件名
+delType:文件路径（res/下的文件夹有很多，如drawable、mipmap等）
+
+
+EmojiTextView，增加对Emoji居中的效果：
+
+1、xml方面：
+(通过enmu，变为可选择的形式)
+<attr name="emojiAlignment" format="integer">
+    <enum name="bottom" value="0"/>
+    <enum name="baseline" value="1"/>
+    <enum name="center" value="2"/>
+</attr>
+
+2、通过控制TextView的canvas来绘制居中的形式
+
+3、添加getNormalStr，将Emoji类型转换成普通的String类型（默认为编码的16进制，可自定义）
+
+
+实现一级缓存的效果：
+
+将Drawable转换成Bitmap：
+
+Bitmap bitmap = ((BitmapDrawable) drawable).getBitmap();
+
+
+实现将Emoji编码转换成文字形式
+
+移除Span是保存Span之前替换的东西的。
+
+实现基本的ChatFrame框
+
+遇到的问题
+
+1、继承EditText
+使用
+public TestEditText(Context context) {
+    this(context,null);
+}
+
+public TestEditText(Context context, AttributeSet attrs) {
+    this(context, attrs,0);
+}
+
+public TestEditText(Context context, AttributeSet attrs, int defStyleAttr) {
+    super(context, attrs, defStyleAttr);
+}
+
+这样子会造成EditText无效，所以还是不要改，直接继承就可以了
+
+2、EditText如何改变显示的文字
+通过getText()获取Editable，Editable就是一个Spannable，
+所以直接使用就可以了。。。。（需要就改EditHandler的逻辑）（完成）
+
+3、Button发送，仍可点击的问题（完成）
+
+4、AndroidManifest 中Window的默认模式居然为adjust_pan(完成)
+
+5、修正ChatFrame 的逻辑问题(未完成)
+
+6、让Emoji居中的问题 （大问题）
+
+不修改size,EditText会自动变大。
+
+文字的span的关系
+
+FontMetris改变的值，不会变回去
+
+
+重写EmojiSpan（加入居中失败，虽然有挺多办法实现，但是没有一个办法好用）:
+1、bottom会根据文字的加入而改变
+2、getSize()中的fm是EmojiSpan的fm，所以会伴随着EmojiSpan而叠加
+3、但是draw()方法里面的paint.getFontMatrisInt()则还是根据textSize来的，
+跟getSize()中的fm是不一样的
+4、默认的fm拥有默认的top和bottom,由textSize()决定。并且在getSize()中自定的
+top和bottom没有大于默认值的话，则draw()方法中的bottom参数会取最大值
+
+想到的办法，就是在TextView的时候，就拿到中线的高度，然后传给EmojiSpan，但是这种
+方法，个人感觉怪怪的，所以放弃了。
+
+所以采用另一种方法，允许自定义Emoji的偏移量，默认为基准线。(失败)
+
+失败总结：
+
+1、没有好好分析问题，在瞎搞。
+举例：如果要改变了fm的任何一个成员变量，其原始的间距是拿不到的，但是我还要一直想获取原始
+间距，但又不想破坏整个View。（本质上不可能实现的东西，还在用其他办法实现）。
+
+2、要冷静。把所有的因素考虑清楚，答案就出来了。(进过一番思考，我就做完了)
+
+3、剩余的问题：
+只有emoji情况下间距的问题。
+TextView会上移的问题0 0。。。（原因是我加入了缓存，导致相同Emoji获取到的Drawable是相同的，就是EditText与TextView
+使用的是相同的Drawable，由于之后要根据不同的Size改变Drawable的大小，由于Drawable的对象相同，导致EditText与TextView
+的大小一致）
+解决办法：不能使用一级缓存。
+
+WeakReference的作用是：防止OOM的发生，当触发GC的时候，不管怎么样都要将引用值回收。
+
+4、现在是行间距的问题
+如何设置行间距。直接使用font.top是无效的，说明font.top不会加入到bottom中。（这是之后的问题）
+
+12/16日 制作计划
+
+1、通过测试了解如何设定间距，及其原理
+
+为什么不能使用fm.top和fm.bottom设置间距，因为只有输入行的时候(就是光标对准的这一行)
+bottom才会将fm.top和fm.bottom算进去，如果是显示行的话(就是已经输入行的上面几行)就不
+会计算上间距(fm.top-fm.asc)和下间距(fm.bottom - fm.des)。
+例：
+比如现在只有一行，就是输入行。
+其bottom = fm.top + fm.bottom
+
+比如有两行，第一行就是显示行，第二行就是输入行。
+那么其bottom
+第一行的高度 = fm.asc + fm.des
+第二行的高度 = fm.top + fm.bottom(简化)
+也就是说显示行的高度，是不会加入间距的
+
+那么有什么办法设置间距呢？
+显示行的高度是由fm.asc + fm.des组成的。
+fm.asc = drawable.getBounds().bottom
+
+drawable.getBounds().bottom是由setBounds()中的bottom决定的。
+即：drawable.setBounds(0,上间距,width,上间距+height)
+所以说可以这样做
+fm.asc = (上间距+图片高度+下间距) 这样子就完成了
+
+注意，最后当drawable.draw(canvas)的时候，由于设置了top的偏移距离，会向下偏移。
+所以需要canvas.translate()的时候，向上恢复，就是减去一个上间距。
+
+小知识：
+当TextView的wrap的时候，TextSize的大小为窗口大小。(就是fm.top+fm.bottom)
+
+这就是基本原理。
+
+现在知道了全部的原理后，重新制定一下需求。
+EmojiSpan:
+1、设置Emoji的大小
+2、默认按照BaseLine位置，允许自行调整大小。
+3、当不存在文字的时候，图片默认居中显示，间距默认为5px。要不要居中显示0 0，最大的问题是EmojiSpan无法判断其他位置是否
+出现文字。所以最终决定采用仿居中的形式，就是间距默认按照14px的时候的TextSize配置。
+
+完成!!!!!!!
+
+2、将表情和工具通过两个不同的Fragment分开
+(我想到的方法：获取Activity的FragmentManager)
+(作者的想法：通过改变ViewPager的Adapter)
+
+首先先制作表情框(FaceCategoryFragment)
+表情框里面有(ViewPager和PageIndicator)
+首先获取SD卡，设置特定的文件夹作为存放外置图片的地方。
+其中每一个文件夹作为一个Category。
+将每个文件夹内的第一张图片作为指示器的封面
+获取每个文件夹下的图片，并使用ImageLoader进行压缩之后再放入View中。不使用缓存（缓存会造成问题）
+问题（如何防止内存溢出，设置接口的时候，回调的东西是什么：地址，Span,还是Bitmap吗）
+
+接口如何设置，就是接口调用太深了了，如何改变。
+就是如果这样做的话，FaceFragment接口，被FaceCategoryFragment接口回调，然后再回调给ChatFrameView，最后才是给
+Activity。怎么能够当FaceFragment回调的时候，直接给ChatFrameView。
+（EventBus:https://github.com/greenrobot/EventBus）发布与订阅机制
+
+
+制作EmojiFragment + RecyclerView(GridLayout)
+一行占8个，并提供点击接口
+制作FaceFragment + RecyclerView
+获取Category对应的文件夹地址。
+
+问题：Fragment有个固定的问题，如果App异常被销毁重新创建的时候，会有问题
+所以需要在View中存储数据~。
+
+进度：完成了Fragment在ChatFrameView中的切换，并且设置了当销毁重建情况下的数据恢复
+
+
+其次，制作ImageFragment(放置下载的图片)
+1、从本地获取文件夹的个数和地址，根据数量创建对应的ImageFragment
+2、
+
+最后，创建PageIndicator指示器
+1、确定指示器的个数和图片
+
+
+
+我的问题：是否应该将Emoji设置成一个对象。
+优点：在数据传递的时候，能够唯一确定，不会传错值,也无法乱添加值进去。
+
+ReycyclerView中的GridLayoutManager，如何居中
+原理是这样的：GridLayout根据RecyclerView的宽度和COL的数量，设定Item的宽度。
+通过Item中的View设置item的高度。设置item中的layout_width和layout_height是无效的。
+还有就是layout_margin是无效的。只有padding是有效的。
+
+进度：通过sdcard生成表情，完成。
+后面就是接口的设计，还有优化。
