@@ -8,6 +8,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.newbiechen.chatframeview.entity.EmojiEntity;
+import com.newbiechen.chatframeview.entity.FaceEntity;
 import com.newbiechen.chatframeview.utils.EmojiHandler;
 import com.newbiechen.chatframeview.utils.ScreenUtils;
 import com.newbiechen.chatframeview.widget.ChatFrameView;
@@ -50,6 +52,16 @@ public class MainActivity extends AppCompatActivity {
                 if (mLv.getLastVisiblePosition() != adapter.getCount()-1){
                     mLv.smoothScrollBy(-mKeyboardHeight,100);
                 }
+            }
+
+            @Override
+            public void onEmojiSelected(EmojiEntity emoji) {
+
+            }
+
+            @Override
+            public void onFaceSelected(FaceEntity face) {
+
             }
         });
     }
