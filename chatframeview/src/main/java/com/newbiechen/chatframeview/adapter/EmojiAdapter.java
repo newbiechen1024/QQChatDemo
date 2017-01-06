@@ -1,24 +1,19 @@
 package com.newbiechen.chatframeview.adapter;
 
-import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.newbiechen.chatframeview.R;
 import com.newbiechen.chatframeview.base.BaseAdapter;
-import com.newbiechen.chatframeview.utils.EmojiHandler;
-
-import java.nio.charset.Charset;
-import java.util.List;
+import com.newbiechen.chatframeview.entity.EmojiEntity;
 
 /**
  * Created by PC on 2016/12/24.
  */
 
-public class EmojiAdapter extends BaseAdapter<Integer,EmojiAdapter.EmojiViewHolder>{
+public class EmojiAdapter extends BaseAdapter<EmojiEntity,EmojiAdapter.EmojiViewHolder>{
 
     @Override
     public EmojiViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
@@ -27,8 +22,8 @@ public class EmojiAdapter extends BaseAdapter<Integer,EmojiAdapter.EmojiViewHold
 
     @Override
     public void setUpViewHolder(EmojiViewHolder holder, int position) {
-        int emojiCode = getItem(position);
-        String emoji = EmojiHandler.code2Emoji(emojiCode);
+        EmojiEntity entity = getItem(position);
+        String emoji = entity.getValue();
         holder.tvIcon.setText(emoji);
     }
 

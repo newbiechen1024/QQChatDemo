@@ -81,9 +81,9 @@ EmojiTextView，增加对Emoji居中的效果：
 1、xml方面：
 (通过enmu，变为可选择的形式)
 <attr name="emojiAlignment" format="integer">
-    <enum name="bottom" value="0"/>
-    <enum name="baseline" value="1"/>
-    <enum name="center" value="2"/>
+    <enum name="bottom" name="0"/>
+    <enum name="baseline" name="1"/>
+    <enum name="center" name="2"/>
 </attr>
 
 2、通过控制TextView的canvas来绘制居中的形式
@@ -265,3 +265,18 @@ ReycyclerView中的GridLayoutManager，如何居中
 
 进度：通过sdcard生成表情，完成。
 后面就是接口的设计，还有优化。
+
+遇到的问题：当ViewPager显示的时候，指示器没法对应显示。
+无法找到RecyclerView绘制完成的回调。
+一般是使用Handler.post()方法，设置View绘制完成后事情。
+但是该方法对RecyclerView无效。
+经过几经波折才找到OnLayoutManagerListener()方法。
+
+到这里功能基本上完成了，未完成的功能
+
+1、由于ChatFrameView的功能还未完善，所以还有一些接口调用没有写
+2、逻辑的优化，还有命名的问题。。。
+
+现在暂时告一段落，先解决显示ListView的问题：
+1、弹性的ListView的制作
+2、解决当出现软件盘时候View上移的问题

@@ -5,6 +5,7 @@
     android:layout_height="wrap_content"
     android:paddingTop="10dp"
     android:paddingBottom="8dp"
+    android:background="@drawable/press_face"
     android:gravity="center">
 
     <ImageView

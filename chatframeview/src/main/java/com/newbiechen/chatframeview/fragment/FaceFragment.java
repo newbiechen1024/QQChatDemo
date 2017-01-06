@@ -10,9 +10,12 @@ import android.view.ViewGroup;
 
 import com.newbiechen.chatframeview.R;
 import com.newbiechen.chatframeview.adapter.FaceAdapter;
+import com.newbiechen.chatframeview.base.BaseAdapter;
 import com.newbiechen.chatframeview.base.BaseFragment;
 import com.newbiechen.chatframeview.entity.FaceEntity;
 import com.newbiechen.chatframeview.utils.ImageFileFilter;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -71,12 +74,31 @@ public class FaceFragment extends BaseFragment {
 
     @Override
     protected void initListener() {
-
+        mFaceAdapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
+            @Override
+            public void itemClick(View view, int pos) {
+                EventBus.getDefault().
+                        post(mFaceAdapter.getItem(pos));
+            }
+        });
     }
 
     @Override
     protected void processLogic(Bundle savedInstanceState) {
 
+    }
+
+    public static class FaceEvent{
+
+        private FaceEntity faceEntity;
+
+        public FaceEvent(FaceEntity faceEntity) {
+            this.faceEntity = faceEntity;
+        }
+
+        public FaceEntity getFaceEntity() {
+            return faceEntity;
+        }
     }
 
     /********************************公共方法*******************************************************/

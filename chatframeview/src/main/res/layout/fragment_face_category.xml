@@ -10,7 +10,7 @@
         android:layout_height="0dp"
         android:layout_weight="1"/>
 
-    <android.support.v7.widget.RecyclerView
+    <com.newbiechen.chatframeview.widget.FaceCategoryRecyclerView
         android:id="@+id/category_rv_pageIndicator"
         android:layout_width="match_parent"
         android:layout_height="@dimen/face_category_icon_size"

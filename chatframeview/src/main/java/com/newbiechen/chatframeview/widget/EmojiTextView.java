@@ -4,9 +4,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.support.v7.widget.AppCompatTextView;
 import android.text.SpannableStringBuilder;
-import android.text.style.DynamicDrawableSpan;
 import android.util.AttributeSet;
-import android.widget.TextView;
 
 import com.newbiechen.chatframeview.utils.EmojiHandler;
 import com.newbiechen.chatframeview.R;
@@ -19,6 +17,7 @@ public class EmojiTextView extends AppCompatTextView {
     private Context mContext;
     private int mEmojiOffset;
     private int mEmojiSize;
+    private boolean isBanEmoji;
     private boolean isUseDefaultMode = false;
 
     public EmojiTextView(Context context) {
@@ -40,6 +39,7 @@ public class EmojiTextView extends AppCompatTextView {
         int defualtTextSize = - getPaint().getFontMetricsInt().ascent;
         mEmojiSize = (int) a.getDimension(R.styleable.EmojiTextView_emojiSize,defualtTextSize);
         mEmojiOffset = (int) a.getDimension(R.styleable.EmojiTextView_emojiOffset, 0);
+        isBanEmoji = a.getBoolean(R.styleable.EmojiTextView_banEmoji,false);
         isUseDefaultMode = a.getBoolean(R.styleable.EmojiTextView_useDefaultMode,false);
         a.recycle();
         /**
@@ -63,8 +63,7 @@ public class EmojiTextView extends AppCompatTextView {
     private CharSequence getEmojiText(CharSequence text){
         SpannableStringBuilder builder = new SpannableStringBuilder(text);
         if (!isUseDefaultMode){
-            EmojiHandler.getIntance()
-                    .textToEmoji(getContext(),builder,mEmojiSize , mEmojiOffset);
+            EmojiHandler.textToEmoji(getContext(),builder,mEmojiSize , mEmojiOffset);
         }
         return builder;
     }

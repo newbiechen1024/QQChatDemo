@@ -1,12 +1,13 @@
 package com.newbiechen.chatframeview.widget;
 
+import static com.newbiechen.chatframeview.fragment.EmojiFragment.EmojiEvent;
+import static com.newbiechen.chatframeview.fragment.FaceFragment.FaceEvent;
 import android.content.Context;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -20,11 +21,14 @@ import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
 
 import com.newbiechen.chatframeview.R;
+import com.newbiechen.chatframeview.entity.EmojiEntity;
+import com.newbiechen.chatframeview.entity.FaceEntity;
 import com.newbiechen.chatframeview.fragment.FaceCategoryFragment;
 import com.newbiechen.chatframeview.fragment.ToolFragment;
 
-import java.util.ArrayList;
-import java.util.List;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 /**
  * Created by PC on 2016/12/8.
@@ -92,6 +96,9 @@ public class ChatFrameView extends RelativeLayout implements
     }
 
     private void initWidget(){
+        //注册EventBus
+        EventBus.getDefault().register(this);
+
         AppCompatActivity mActivity = (AppCompatActivity) mContext;
         mKeyboardHelper = new KeyboardStateHelper(mActivity);
         mFm = mActivity.getSupportFragmentManager();
@@ -269,6 +276,7 @@ public class ChatFrameView extends RelativeLayout implements
     public void onKeyboardOpen(int keyboardHeight) {
         hideToolBox();
         mFrameState = STATE_BOARD;
+        mListener.onKeyboardOpen(keyboardHeight);
     }
 
     @Override
@@ -276,11 +284,7 @@ public class ChatFrameView extends RelativeLayout implements
         if (mFrameState == STATE_BOARD){
             mFrameState = STATE_HIDE;
         }
-    }
-
-    public interface OnChatFrameListener{
-        //发送数据
-        void sendMessage(CharSequence text);
+        mListener.onKeyboardClose();
     }
 
     @Override
@@ -299,6 +303,25 @@ public class ChatFrameView extends RelativeLayout implements
         savedState.curEditStr = mCurEditStr;
         savedState.frameState = mFrameState;
         return savedState;
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEmojiEvent(EmojiEvent event) {
+        EmojiEntity entity = event.getEmojiEntitiy();
+        mEtInput.getText().
+                append(entity.getValue());
+
+        if (mListener != null){
+            mListener.onEmojiSelected(entity);
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onFaceEvent(FaceEvent faceEvent){
+        if (mListener != null){
+            mListener.onFaceSelected(faceEvent.getFaceEntity());
+        }
+
     }
 
     static class SavedState extends BaseSavedState {
@@ -334,6 +357,66 @@ public class ChatFrameView extends RelativeLayout implements
             }
         };
     }
+
+    public interface OnChatFrameListener{
+        //点击发送的监听
+        void sendMessage(CharSequence text);
+
+        //键盘监听
+        void onKeyboardOpen(int keyboardHeight);
+        void onKeyboardClose();
+
+        //表情监听
+        void onEmojiSelected(EmojiEntity emoji);
+        void onFaceSelected(FaceEntity face);
+    }
+
+    public abstract class OnKeyboardListener implements OnChatFrameListener{
+
+        @Override
+        public void onEmojiSelected(EmojiEntity emoji) {
+        }
+
+        @Override
+        public void onFaceSelected(FaceEntity face) {
+        }
+    }
+
+    public abstract class OnSendListener implements OnChatFrameListener{
+
+        @Override
+        public void onKeyboardOpen(int keyboardHeight) {
+
+        }
+
+        @Override
+        public void onKeyboardClose() {
+
+        }
+
+        @Override
+        public void onEmojiSelected(EmojiEntity emoji) {
+
+        }
+
+        @Override
+        public void onFaceSelected(FaceEntity face) {
+
+        }
+    }
+
+    public abstract class OnFaceListener implements OnChatFrameListener{
+
+        @Override
+        public void onKeyboardOpen(int keyboardHeight) {
+
+        }
+
+        @Override
+        public void onKeyboardClose() {
+
+        }
+    }
     /*****************************公共方法********************************************/
     /**
      * 设置监听器
@@ -356,5 +439,6 @@ public class ChatFrameView extends RelativeLayout implements
      */
     public void removeChatFrame(){
         mKeyboardHelper.removeKeyboardStateHelper();
+        EventBus.getDefault().unregister(this);
     }
 }

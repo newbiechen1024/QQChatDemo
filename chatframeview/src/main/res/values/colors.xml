@@ -10,5 +10,5 @@
     <color name="send_btn_clickable">#11B6F4</color>
     <color name="send_btn_pressed">#069DD5</color>
     <color name="send_btn_unclickable">#DCDEE2</color>
-    <color name="emoji_press">#909090</color>
+    <color name="face_select">#909090</color>
 </resources>

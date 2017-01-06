@@ -1,64 +1,113 @@
 package com.newbiechen.chatframeview;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.os.Message;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Adapter;
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
+import android.widget.ListView;
 
-/**
- * Created by PC on 2016/12/9.
- */
+public class TestActivity extends Activity implements OnClickListener {
+    private Button btn_up, btn_down, btn_stop; // 三个按钮
+    private ListView listview;
+    private Adapter adapter;
 
-public class TestActivity extends AppCompatActivity {
-    private EditText mEtSend;
-    private TextView mTvShow;
-    private Button mBtnEmoji;
-    private Handler mHandler = new Handler();
     @Override
-    protected void onCreate(@Nullable Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
-        mEtSend = (EditText) findViewById(R.id.test_et_send);
-        mTvShow = (TextView) findViewById(R.id.test_tv_show);
-        mBtnEmoji = (Button) findViewById(R.id.test_btn_emoji);
-
-        mEtSend.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                final CharSequence data = s;
-                mHandler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        mTvShow.setText(data);
-                    }
-                },30);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-
-            }
-        });
-        mBtnEmoji.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int emoji = 0x1f60a;
-                char [] code = Character.toChars(emoji);
-                String s = new String(code);
-                mEtSend.getText().append(s);
-            }
-        });
+        int resId = this.getResources().
+                getIdentifier("emoji","drawable",this.getPackageName());
+        Log.d("TestActivity",resId+"");
     }
+
+    private void init() {
+        btn_up.setOnClickListener(this);
+        btn_down.setOnClickListener(this);
+        btn_stop.setOnClickListener(this);
+
+    }
+
+    private void findBy() {
+        btn_up = (Button) findViewById(R.id.btn_scroll_up);
+        btn_down = (Button) findViewById(R.id.btn_scroll_down);
+        btn_stop = (Button) findViewById(R.id.btn_scroll_stop);
+
+        listview = (ListView) findViewById(R.id.listview);
+    }
+
+    @Override
+    public void onClick(View v) {
+        switch (v.getId()) {
+            case R.id.btn_scroll_down:
+                listScrollDown();
+                break;
+            case R.id.btn_scroll_up:
+                listScrollUp();
+                break;
+            case R.id.btn_scroll_stop:
+                listScrollOff();
+                break;
+        }
+    }
+
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            handler.removeCallbacks(run_scroll_down);
+            handler.removeCallbacks(run_scroll_up);
+        }
+    };
+
+    /**
+     * 向上滚动
+     */
+    public void listScrollUp() {
+        listScrollOff();
+        handler.postDelayed(run_scroll_up, 0);
+    }
+
+    /**
+     * 向下滚动
+     */
+    public void listScrollDown() {
+        listScrollOff();
+        handler.postDelayed(run_scroll_down, 0);
+    }
+
+    /**
+     * 停止滚动
+     */
+    public void listScrollOff() {
+        handler.removeCallbacks(run_scroll_down);
+        handler.removeCallbacks(run_scroll_up);
+    }
+
+    Runnable run_scroll_up = new Runnable() {
+        @Override
+        public void run() {
+            /**
+             * public void smoothScrollBy (int distance, int duration)
+             *
+             * Added in API level 8 Smoothly scroll by distance pixels over duration milliseconds.
+             *
+             * Parameters
+             *     distance Distance to scroll in pixels.
+             *     duration Duration of the scroll animation in milliseconds.
+             */
+            listview.smoothScrollBy(1, 10);
+            handler.postDelayed(run_scroll_up, 10);
+        }
+    };
+    Runnable run_scroll_down = new Runnable() {
+        @Override
+        public void run() {
+            listview.smoothScrollBy(-1, 10);
+            handler.postDelayed(run_scroll_down, 10);
+        }
+    };
 }

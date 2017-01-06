@@ -32,7 +32,7 @@ public class KeyboardStateHelper implements ViewTreeObserver.OnGlobalLayoutListe
         //原理：整个Screen由StatusBar(导航栏)+ActionBar(工具栏)+NavBar(虚拟键盘)+ContentView组成
         //     就是 screen = s + a + n + c;
         //     当键盘显示的时候，ContentView会缩小。
-        //     那么最后就是 screen > s + a + n + c  转换一下 screen - c > s + a + n + c
+        //     那么最后就是 screen > s + a + n + c  转换一下 screen - c > s + a + n
         //     otherHeight = s + a + ｎ    distance = screen - c
         //     最终公式就是 distance > otherHeight
         int otherHeight = ScreenUtils.getStatusBarHeight(mActivity) +
@@ -43,7 +43,8 @@ public class KeyboardStateHelper implements ViewTreeObserver.OnGlobalLayoutListe
         if (distance > otherHeight){
             isKeyboardUp = true;
             if (mStateChangeListener != null){
-                mStateChangeListener.onKeyboardOpen(distance);
+                int keyboardHeight = distance - otherHeight;
+                mStateChangeListener.onKeyboardOpen(keyboardHeight);
             }
         }
         else {

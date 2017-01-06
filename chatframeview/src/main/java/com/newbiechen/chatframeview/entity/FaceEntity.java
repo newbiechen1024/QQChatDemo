@@ -1,13 +1,12 @@
 package com.newbiechen.chatframeview.entity;
 
 /**
- * Created by PC on 2016/12/25.
+ * Created by PC on 2017/1/1.
  */
 
 public class FaceEntity {
-
-    private String facePath;
     private String fileName;
+    private String facePath;
 
     public String getFacePath() {
         return facePath;

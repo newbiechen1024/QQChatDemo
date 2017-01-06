@@ -61,7 +61,8 @@
             android:minHeight="35dp"
             android:textSize="18sp"
             android:padding="4dp"
-            emoji:emojiSize="25sp" />
+            emoji:emojiSize="25sp"
+            emoji:emojiOffset="2sp"/>
     </RelativeLayout>
 
     <!--显示表情和工具的地方-->

@@ -2,6 +2,8 @@ package com.newbiechen.chatframeview.fragment;
 
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -13,13 +15,16 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 
 import com.newbiechen.chatframeview.R;
 import com.newbiechen.chatframeview.adapter.FaceCategoryAdapter;
+import com.newbiechen.chatframeview.base.BaseAdapter;
 import com.newbiechen.chatframeview.base.BaseFragment;
 import com.newbiechen.chatframeview.entity.FaceEntity;
 import com.newbiechen.chatframeview.utils.ImageFileFilter;
 import com.newbiechen.chatframeview.utils.FileUtils;
+import com.newbiechen.chatframeview.widget.FaceCategoryRecyclerView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -33,11 +38,11 @@ public class FaceCategoryFragment extends BaseFragment {
     private static final String FACE_FILE_NAME = "FaceIconStorage";
 
     private ViewPager mVp;
-    private RecyclerView mRvIndicator;
+    private FaceCategoryRecyclerView mRvIndicator;
     private FaceCategoryAdapter mFaceCategoryAdapter;
 
     private EmojiFragment mEmojiFragment;
-
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private final ArrayList<Fragment> mFragmentList = new ArrayList<>();
     private final ArrayList<FaceEntity> mFaceCategoryList = new ArrayList<>();
@@ -57,7 +62,6 @@ public class FaceCategoryFragment extends BaseFragment {
     @Override
     protected void initWidget() {
         initCategory();
-        mVp.setAdapter(new FacePageAdpter(getChildFragmentManager()));
     }
 
     /**
@@ -69,6 +73,7 @@ public class FaceCategoryFragment extends BaseFragment {
         mFragmentList.add(mEmojiFragment);
         //初始化外置的表情目录
         initFaceCategory();
+
     }
 
     private void initFaceCategory(){
@@ -117,6 +122,8 @@ public class FaceCategoryFragment extends BaseFragment {
          * 5、将Emoji设置为对象可能会更好一点（之后优化的问题）
          */
         setUpIndicator();
+
+        mVp.setAdapter(new FacePageAdpter(getChildFragmentManager()));
     }
 
     private void setUpIndicator(){
@@ -129,7 +136,38 @@ public class FaceCategoryFragment extends BaseFragment {
 
     @Override
     protected void initListener() {
+        mRvIndicator.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                mRvIndicator.selectItem(mVp.getCurrentItem());
+            }
+        });
+        //根据当前的ViewPager使Indicator变为选中色
+        mVp.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
 
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                mRvIndicator.selectItem(position);
+            }
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
+        mFaceCategoryAdapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
+            @Override
+            public void itemClick(View view, int pos) {
+
+                //选中
+                mRvIndicator.selectItem(pos);
+                //切换
+                mVp.setCurrentItem(pos,false);
+            }
+        });
     }
 
     @Override

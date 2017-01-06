@@ -3,8 +3,8 @@
     <declare-styleable name="EmojiTextView">
         <attr name="emojiSize" format="dimension"/>
         <attr name="useDefaultMode" format="boolean"/>
-        <attr name="emojiOffset" format="dimension">
-        </attr>
+        <attr name="emojiOffset" format="dimension"/>
+        <attr name="banEmoji" format="boolean"/>
     </declare-styleable>
 
 </resources>
