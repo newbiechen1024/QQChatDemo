@@ -8,7 +8,9 @@ import android.widget.ListView;
 import java.util.ArrayList;
 
 /**
- * Created by PC on 2017/1/6.
+ * Created by NewBiechen on 2017/1/6.
+ *
+ *
  */
 
 public class RefreshListView extends RefreshLayout<ListView> {

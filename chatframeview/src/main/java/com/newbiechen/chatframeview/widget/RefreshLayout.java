@@ -20,7 +20,6 @@ import com.newbiechen.chatframeview.utils.ScreenUtils;
  */
 public abstract class RefreshLayout<T extends View> extends ViewGroup{
     private static final String TAG = "RefreshLayout";
-
     //表示空闲状态
     private static final int STATUS_FREE = 0;
     //表示下拉，准备展开Header刷新状态
@@ -29,8 +28,10 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
     private static final int STATUS_REFRESHING = 2;
     //表示上划，准备回收的状态
     private static final int STATUS_PULL_TO_REFRESH = 3;
-    //
+    //表示滑动的时间
     private static final int SCROLL_TIME = 600;
+    //当用户在刷新时候上滑隐藏Header的时候，为提高切换的流畅性。
+    private static final int SHRINK_DISTANCE = -50;
 
     private View mHeaderView;
     private T mContentView;
@@ -40,10 +41,12 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
     private Context mContext;
     private Scroller mScroller;
     private int mCurrentStatus;
+    //默认的高度
     private int mHeaderHeight;
     //溢出的高度
     private int mOverflowHeight;
-
+    //总高度
+    private int mHeaderTotalHeight;
     private int mInterceptDownX;
     private int mInterceptDownY;
 
@@ -73,6 +76,7 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
         //初始化ContentView的Layout，只允许设置为match
         initContentViewLayout();
         addView(mContentView);
+
     }
 
     //创建头部
@@ -86,6 +90,7 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
         //允许溢出的高度
         mOverflowHeight = ScreenUtils.getAppHeight(getContext()) - mHeaderHeight*2;
         mHeaderView.setPadding(0,mOverflowHeight,0,0);
+        mHeaderTotalHeight = mHeaderHeight + mOverflowHeight;
     }
 
     private void measureView(View child){
@@ -139,7 +144,7 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
             top += child.getMeasuredHeight();
         }
         //将header隐藏
-        scrollTo(0,mHeaderHeight+mOverflowHeight);
+        scrollTo(0,mHeaderTotalHeight);
     }
 
     @Override
@@ -158,10 +163,19 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
             case MotionEvent.ACTION_MOVE:
                 int deltaX = mInterceptDownX - currentX;
                 int deltaY = mInterceptDownY - currentY;
-                /**判断是否进行刷新*/
+                /**判断是否进行刷新**/
                 if (Math.abs(deltaX) < Math.abs(deltaY)
-                        && isTop() && deltaY < 0){
-                    isIntercept = true;
+                        && isTop() ){
+                    //判断是下滑刷新，还是正在刷新的时候上滑隐藏刷新
+                    if (deltaY < 0){
+                        isIntercept = true;
+                    }
+                    else if (deltaY>0 && getScrollY() < mHeaderTotalHeight){
+                        isIntercept = true;
+                    }
+                    else {
+                        isIntercept = false;
+                    }
                 }
                 else {
                     isIntercept = false;
@@ -193,12 +207,27 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
                 changeScrollY(deltaY);
                 break;
             case MotionEvent.ACTION_UP:
-                if (mCurrentStatus == STATUS_RELEASE_TO_REFRESH || mCurrentStatus == STATUS_REFRESHING){
+                if (mCurrentStatus == STATUS_RELEASE_TO_REFRESH ||
+                        mCurrentStatus == STATUS_REFRESHING){
 
-                    if(getScrollY() > mOverflowHeight){
-                        smoothToScroll(-(getScrollY() - mOverflowHeight));
+                    //判断是扩张刷新还是收缩刷新
+                    if(getScrollY() >= mOverflowHeight){
+
+                        //如果是扩张，还要判断是否是刷新时刷新
+                        if (mCurrentStatus != STATUS_REFRESHING){
+                            //Header向下扩张
+                            smoothToScroll(-(getScrollY() - mOverflowHeight));
+                        }
+                        else {
+                            int distance = getScrollY() - mHeaderTotalHeight;
+                            //套了四个if 0 - 0 这逻辑写的尴尬。。
+                            if (distance > SHRINK_DISTANCE && distance < 0){
+                                smoothToScroll(-distance);
+                            }
+                        }
                     }
                     else {
+                        //Header向上收缩
                         smoothToScroll((mOverflowHeight - getScrollY()));
                     }
                     refresh();
@@ -219,15 +248,17 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
         if (distance < 0 && currentScrollY+distance >= 0){
             scrollBy(0,distance);
         }
-        else if (distance > 0 && currentScrollY+distance <= mOverflowHeight+mHeaderHeight){
+        else if (distance > 0 && currentScrollY+distance <= mHeaderTotalHeight){
             scrollBy(0,distance);
         }
         //因为已经滑动就改变了ScrollY()的位置，要重新获取
         currentScrollY = getScrollY();
+
         //正在刷新就不需要判断了。
         if (mCurrentStatus == STATUS_REFRESHING){
             return;
         }
+
         //设定当前滑动的状态
         //表示header出现的面积小于1/2,则设置为收缩状态
         if (currentScrollY >= mHeaderHeight/2+mOverflowHeight){
@@ -245,7 +276,8 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
     }
 
     private void refresh(){
-        if (mRefreshListener != null){
+        if (mRefreshListener != null &&
+                mCurrentStatus != STATUS_REFRESHING){
             mRefreshListener.onRefresh();
         }
         mCurrentStatus = STATUS_REFRESHING;
@@ -277,7 +309,7 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
 
     public void refreshComplete(){
         //复原
-        smoothToScroll(mOverflowHeight+mHeaderHeight - getScrollY());
+        smoothToScroll(mHeaderTotalHeight - getScrollY());
         mCurrentStatus = STATUS_FREE;
     }
 }

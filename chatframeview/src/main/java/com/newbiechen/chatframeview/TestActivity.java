@@ -15,6 +15,7 @@ import com.newbiechen.chatframeview.widget.RefreshLayout;
 import com.newbiechen.chatframeview.widget.RefreshListView;
 
 public class TestActivity extends Activity{
+    private static final String TAG = "TestActivity";
     private ListView listview;
     private Handler mHandler = new Handler();
     private Adapter adapter;
@@ -27,6 +28,7 @@ public class TestActivity extends Activity{
         listView.setOnRefreshListener(new RefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                Log.d(TAG, "onRefresh: 测试");
                 mHandler.postDelayed(new Runnable() {
                     @Override
                     public void run() {

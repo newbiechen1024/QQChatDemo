@@ -32,7 +32,8 @@ public class MainActivity extends AppCompatActivity {
         for (int i=0; i<20; ++i) {
             mStrList.add("测试：" + i);
         }
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1,mStrList);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1,mStrList);
         mLv.setAdapter(adapter);
         mChatFrame = (ChatFrameView) findViewById(R.id.main_chat_frame);
         mChatFrame.setOnChatFrameListener(new ChatFrameView.OnChatFrameListener() {
