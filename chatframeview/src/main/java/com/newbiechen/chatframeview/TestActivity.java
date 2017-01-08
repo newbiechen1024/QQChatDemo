@@ -3,12 +3,8 @@ package com.newbiechen.chatframeview;
 import android.app.Activity;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Adapter;
-import android.widget.Button;
 import android.widget.ListView;
 
 import com.newbiechen.chatframeview.widget.RefreshLayout;
@@ -24,6 +20,7 @@ public class TestActivity extends Activity{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_test);
+/*        RefreshHeaderView refreshHeaderView = (RefreshHeaderView) findViewById(R.id.test_refresh);*/
         final RefreshListView listView = (RefreshListView)findViewById(R.id.test_refresh);
         listView.setOnRefreshListener(new RefreshLayout.OnRefreshListener() {
             @Override

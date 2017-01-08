@@ -3,9 +3,8 @@ package com.newbiechen.chatframeview.widget;
 import android.content.Context;
 import android.util.AttributeSet;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
-
-import java.util.ArrayList;
 
 /**
  * Created by NewBiechen on 2017/1/6.
@@ -31,17 +30,19 @@ public class RefreshListView extends RefreshLayout<ListView> {
     @Override
     public ListView createContentView(Context context) {
         mListView = new ListView(context);
-        ArrayList<String> strings = new ArrayList<>();
-        for(int i=0; i<20; ++i){
-            strings.add("测试+"+i);
-        }
-        mAdapter = new ArrayAdapter<>(context,android.R.layout.simple_list_item_1,strings);
-        mListView.setAdapter(mAdapter);
         return mListView;
     }
 
     @Override
     public boolean isTop() {
         return mListView.getFirstVisiblePosition() == 0 ? true : false;
+    }
+
+    public void setAdapter(ListAdapter adapter){
+        mListView.setAdapter(adapter);
+    }
+
+    public ListView getListView(){
+        return mListView;
     }
 }

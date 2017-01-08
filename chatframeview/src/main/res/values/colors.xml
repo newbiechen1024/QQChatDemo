@@ -4,6 +4,9 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
 
+    <color name="black">#000000</color>
+    <color name="gray">#939393</color>
+
     <color name="reply_frame_bg">#EBEBEB</color>
     <color name="text_foreground_color">#00E3E3</color>
 

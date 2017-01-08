@@ -1,11 +1,7 @@
 package com.newbiechen.chatframeview.widget;
 
-import android.app.Activity;
 import android.content.Context;
-import android.os.Handler;
-import android.support.v7.app.AppCompatActivity;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -71,24 +67,23 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
     }
 
     private void initView(){
-        initHeader();
+        mHeaderView = createHeaderView(mContext,this);
         mContentView = createContentView(mContext);
+        initHeader();
         //初始化ContentView的Layout，只允许设置为match
         initContentViewLayout();
         addView(mContentView);
-
     }
 
     //创建头部
     private void initHeader(){
-        mHeaderView = LayoutInflater.from(mContext).
-                inflate(R.layout.pull_to_refresh_header,this,false);
+
         //添加到ViewGroup中
         addView(mHeaderView);
         measureView(mHeaderView);
         mHeaderHeight = mHeaderView.getMeasuredHeight();
         //允许溢出的高度
-        mOverflowHeight = ScreenUtils.getAppHeight(getContext()) - mHeaderHeight*2;
+        mOverflowHeight = ScreenUtils.getAppHeight(getContext())/2;
         mHeaderView.setPadding(0,mOverflowHeight,0,0);
         mHeaderTotalHeight = mHeaderHeight + mOverflowHeight;
     }
@@ -120,16 +115,13 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
     //无视Padding且全部设为Match
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-        final int childCount = getChildCount();
         final int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
-        int viewGroupHeight = 0;
-        for(int i=0; i<childCount; ++i) {
-            //测量child的宽高
-            final View child = getChildAt(i);
-            measureChild(child,widthMeasureSpec,heightMeasureSpec);
-            viewGroupHeight += child.getMeasuredHeight();
-        }
-        setMeasuredDimension(widthSpecSize,viewGroupHeight);
+        final int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
+        final int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
+        final int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
+
+        measureChildren(widthMeasureSpec,heightMeasureSpec);
+        setMeasuredDimension(widthSpecSize,heightSpecSize);
     }
 
     @Override
@@ -293,8 +285,14 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
         }
     }
 
+    protected View createHeaderView(Context context,ViewGroup parent){
+        return  LayoutInflater.from(context).
+                inflate(R.layout.pull_to_refresh_header,parent,false);
+    }
+
     /***************************abstract method***************************************/
     public abstract T createContentView(Context context);
+
     //ContentView是否滑动到顶部
     public abstract boolean isTop();
 
