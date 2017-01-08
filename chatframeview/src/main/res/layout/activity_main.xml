@@ -8,7 +8,7 @@
     android:orientation="vertical"
     tools:context="com.newbiechen.chatframeview.MainActivity">
 
-    <ListView
+    <com.newbiechen.chatframeview.widget.RefreshListView
         android:id="@+id/main_lv"
         android:layout_width="match_parent"
         android:layout_height="0dp"
@@ -19,5 +19,4 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"/>
-
 </LinearLayout>

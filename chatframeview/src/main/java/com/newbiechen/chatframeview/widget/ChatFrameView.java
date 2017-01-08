@@ -19,6 +19,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.newbiechen.chatframeview.R;
 import com.newbiechen.chatframeview.entity.EmojiEntity;
@@ -57,7 +58,6 @@ public class ChatFrameView extends RelativeLayout implements
     private CheckBox mCbMore;
     private EditText mEtInput;
     private Button mBtnSend;
-
     private FragmentManager mFm;
     private View mRootView;
 

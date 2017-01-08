@@ -8,7 +8,6 @@ import java.io.FileFilter;
  */
 
 public class ImageFileFilter implements FileFilter {
-
     @Override
     public boolean accept(File pathname) {
         String name = pathname.getName();

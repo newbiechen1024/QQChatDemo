@@ -53,7 +53,7 @@ public class EmojiSpan extends ReplacementSpan {
         if (mEmojiDrawable == null){
             String hexStr = Integer.toHexString(mEmojiCode);
             //首先从一级缓存中获取数据
-            int resId = mContext.getResources().getIdentifier(EMOJI_NAME+hexStr,EMOJI_PATH,mContext.getPackageName());
+            int resId = mContext.getResources().getIdentifier(EMOJI_NAME + hexStr,EMOJI_PATH,mContext.getPackageName());
             mEmojiDrawable = mContext.getResources().getDrawable(resId);
             //获取图片的宽高
             int width = mEmojiDrawable.getIntrinsicWidth();
