@@ -8,5 +8,5 @@
     <com.newbiechen.chatframeview.widget.RefreshListView
         android:id="@+id/test_refresh"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="300dp"/>
 </LinearLayout>

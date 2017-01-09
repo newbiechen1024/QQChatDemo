@@ -13,7 +13,7 @@ import com.newbiechen.chatframeview.utils.ScreenUtils;
  */
 
 public class KeyboardStateHelper implements ViewTreeObserver.OnGlobalLayoutListener{
-
+    private static final String TAG = "KeyboardStateHelper";
     private AppCompatActivity mActivity;
     private OnKeyboardStateChangeListener mStateChangeListener;
     private InputMethodManager mImm;
@@ -40,14 +40,14 @@ public class KeyboardStateHelper implements ViewTreeObserver.OnGlobalLayoutListe
         int distance = ScreenUtils.getScreenHeight(mActivity) -
                 ScreenUtils.getContentLayoutHeight(mActivity);
         //如果之间的距离大于其他零件的距离，说明根布局缩小了
-        if (distance > otherHeight){
+        if (distance > otherHeight && !isKeyboardUp){
             isKeyboardUp = true;
             if (mStateChangeListener != null){
                 int keyboardHeight = distance - otherHeight;
                 mStateChangeListener.onKeyboardOpen(keyboardHeight);
             }
         }
-        else {
+        else if (distance <= otherHeight && isKeyboardUp){
             isKeyboardUp = false;
             if (mStateChangeListener != null){
                 mStateChangeListener.onKeyboardClosed();
@@ -83,10 +83,6 @@ public class KeyboardStateHelper implements ViewTreeObserver.OnGlobalLayoutListe
     public void hideKeyboard(){
         if (isKeyboardUp){
             mImm.toggleSoftInput(0,InputMethodManager.HIDE_NOT_ALWAYS);
-            isKeyboardUp = false;
-            if (mStateChangeListener != null){
-                mStateChangeListener.onKeyboardClosed();
-            }
         }
     }
 
