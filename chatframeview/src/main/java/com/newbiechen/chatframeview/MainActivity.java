@@ -7,8 +7,6 @@ import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.newbiechen.chatframeview.entity.EmojiEntity;
-import com.newbiechen.chatframeview.entity.FaceEntity;
 import com.newbiechen.chatframeview.widget.ChatFrameView;
 import com.newbiechen.chatframeview.widget.RefreshLayout;
 import com.newbiechen.chatframeview.widget.RefreshListView;
@@ -16,6 +14,8 @@ import com.newbiechen.chatframeview.widget.RefreshListView;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+
     private TextView mTvContent;
     private ChatFrameView mChatFrame;
     private RefreshListView mLv;
@@ -42,12 +42,13 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         mLv.refreshComplete();
+                        Log.d(TAG, "run: 测试");
                     }
                 },3000);
             }
         });
         mChatFrame = (ChatFrameView) findViewById(R.id.main_chat_frame);
-        mChatFrame.setOnChatFrameListener(new ChatFrameView.OnChatFrameListener() {
+     /*   mChatFrame.setOnChatFrameListener(new ChatFrameView.OnChatFrameListener() {
             @Override
             public void sendMessage(CharSequence text) {
             }
@@ -76,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
             public void onFaceSelected(FaceEntity face) {
 
             }
-        });
+        });*/
     }
 
     @Override

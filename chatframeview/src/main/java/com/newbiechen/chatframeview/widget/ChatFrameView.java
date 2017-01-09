@@ -1,8 +1,8 @@
 package com.newbiechen.chatframeview.widget;
 
-import static com.newbiechen.chatframeview.fragment.EmojiFragment.EmojiEvent;
-import static com.newbiechen.chatframeview.fragment.FaceFragment.FaceEvent;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -19,7 +19,6 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import com.newbiechen.chatframeview.R;
 import com.newbiechen.chatframeview.entity.EmojiEntity;
@@ -31,6 +30,9 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import static com.newbiechen.chatframeview.fragment.EmojiFragment.EmojiEvent;
+import static com.newbiechen.chatframeview.fragment.FaceFragment.FaceEvent;
+
 /**
  * Created by PC on 2016/12/8.
  * 问题：changeToolboxState这个方法有硬伤，逻辑有问题
@@ -39,6 +41,7 @@ import org.greenrobot.eventbus.ThreadMode;
 
 public class ChatFrameView extends RelativeLayout implements
         KeyboardStateHelper.OnKeyboardStateChangeListener{
+    private static final String TAG = "ChatFrameView";
     /**
      * 当前ChatFrame的状态参数
      */
@@ -51,6 +54,7 @@ public class ChatFrameView extends RelativeLayout implements
     private KeyboardStateHelper mKeyboardHelper;
     private Fragment mToolFragment;
     private Fragment mFaceCategoryFragment;
+    private Handler mHandler = new Handler(Looper.getMainLooper());
     private OnChatFrameListener mListener;
 
     private FrameLayout mFlBox;
@@ -105,7 +109,6 @@ public class ChatFrameView extends RelativeLayout implements
 
         //初始化点击事件状态
         changeSendState();
-
         //初始化Box中的Fragment
         initFragment();
     }
@@ -113,7 +116,7 @@ public class ChatFrameView extends RelativeLayout implements
     private void initFragment(){
         //当销毁重绘的时候获取当前
         mFaceCategoryFragment = mFm.findFragmentByTag(FaceCategoryFragment.TAG);
-        mToolFragment = mFm.findFragmentByTag(ToolFragment.TAG);
+        mToolFragment = mFm.findFragmentByTag(TAG);
 
         if(mFaceCategoryFragment == null && mToolFragment == null){
             mFaceCategoryFragment = new FaceCategoryFragment();
@@ -122,7 +125,7 @@ public class ChatFrameView extends RelativeLayout implements
             FragmentTransaction ft = mFm.beginTransaction();
             ft.add(R.id.frame_fl_box,mFaceCategoryFragment,FaceCategoryFragment.TAG);
             ft.hide(mFaceCategoryFragment);
-            ft.add(R.id.frame_fl_box,mToolFragment,ToolFragment.TAG);
+            ft.add(R.id.frame_fl_box,mToolFragment, TAG);
             ft.hide(mToolFragment);
             ft.commit();
         }
@@ -173,8 +176,6 @@ public class ChatFrameView extends RelativeLayout implements
         });
     }
 
-
-
     /**
      * 设置Button是否可点击
      */
@@ -198,18 +199,15 @@ public class ChatFrameView extends RelativeLayout implements
             hideToolBox();
         }
         else{
-            //首先关闭软键盘
-            mKeyboardHelper.hideKeyboard();
-            //首先关闭软件盘后再打开工具箱
-            postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mFlBox.setVisibility(VISIBLE);
-                    changeFragment(state);
-                }
-            }, 50);
-
             changeFrameState(state);
+            if (mKeyboardHelper.getKeyboardState() == false){
+                mFlBox.setVisibility(VISIBLE);
+                changeFragment(state);
+            }
+            else {
+                //首先关闭软键盘
+                mKeyboardHelper.hideKeyboard();
+            }
         }
     }
 
@@ -237,7 +235,6 @@ public class ChatFrameView extends RelativeLayout implements
     private void changeFrameState(int state){
         //修改当前状态
         mFrameState = state;
-
         //将CheckBox的状态修改回来
         mCbFace.setChecked(state == STATE_FACE);
         mCbMore.setChecked(state == STATE_MORE);
@@ -276,7 +273,9 @@ public class ChatFrameView extends RelativeLayout implements
     public void onKeyboardOpen(int keyboardHeight) {
         hideToolBox();
         mFrameState = STATE_BOARD;
-        mListener.onKeyboardOpen(keyboardHeight);
+        if (mListener != null){
+            mListener.onKeyboardOpen(keyboardHeight);
+        }
     }
 
     @Override
@@ -284,7 +283,14 @@ public class ChatFrameView extends RelativeLayout implements
         if (mFrameState == STATE_BOARD){
             mFrameState = STATE_HIDE;
         }
-        mListener.onKeyboardClose();
+        else {
+            mFlBox.setVisibility(VISIBLE);
+            changeFragment(mFrameState);
+        }
+
+        if (mListener != null){
+            mListener.onKeyboardClose();
+        }
     }
 
     @Override
@@ -321,7 +327,6 @@ public class ChatFrameView extends RelativeLayout implements
         if (mListener != null){
             mListener.onFaceSelected(faceEvent.getFaceEntity());
         }
-
     }
 
     static class SavedState extends BaseSavedState {

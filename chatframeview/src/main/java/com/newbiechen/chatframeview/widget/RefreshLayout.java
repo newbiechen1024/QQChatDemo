@@ -9,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.Scroller;
 
 import com.newbiechen.chatframeview.R;
-import com.newbiechen.chatframeview.utils.ScreenUtils;
 
 /**
  * Created by PC on 2016/8/21.
@@ -36,6 +35,7 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
 
     private Context mContext;
     private Scroller mScroller;
+
     private int mCurrentStatus;
     //默认的高度
     private int mHeaderHeight;
@@ -80,12 +80,9 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
 
         //添加到ViewGroup中
         addView(mHeaderView);
+        //直接测量Header
         measureView(mHeaderView);
         mHeaderHeight = mHeaderView.getMeasuredHeight();
-        //允许溢出的高度
-        mOverflowHeight = ScreenUtils.getAppHeight(getContext())/2;
-        mHeaderView.setPadding(0,mOverflowHeight,0,0);
-        mHeaderTotalHeight = mHeaderHeight + mOverflowHeight;
     }
 
     private void measureView(View child){
@@ -115,12 +112,20 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
     //无视Padding且全部设为Match
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        final int childCount = getChildCount();
         final int widthSpecSize = MeasureSpec.getSize(widthMeasureSpec);
-        final int widthSpecMode = MeasureSpec.getMode(widthMeasureSpec);
         final int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
-        final int heightSpecMode = MeasureSpec.getMode(heightMeasureSpec);
 
-        measureChildren(widthMeasureSpec,heightMeasureSpec);
+        for (int i=0; i<childCount; ++i){
+            View child = getChildAt(i);
+            if (i == 0){
+                //设置溢出的高度
+                mOverflowHeight = heightSpecSize - mHeaderHeight;
+                mHeaderView.setPadding(0,mOverflowHeight,0,0);
+                mHeaderTotalHeight = mHeaderHeight + mOverflowHeight;
+            }
+            measureChild(child,widthMeasureSpec,heightMeasureSpec);
+        }
         setMeasuredDimension(widthSpecSize,heightSpecSize);
     }
 
@@ -131,11 +136,10 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
         //设定child摆放的位置
         for(int i=0; i<childCount; ++i){
             final View child = getChildAt(i);
-
             child.layout(0,top,child.getMeasuredWidth(),child.getMeasuredHeight()+top);
             top += child.getMeasuredHeight();
         }
-        //将header隐藏
+
         scrollTo(0,mHeaderTotalHeight);
     }
 
