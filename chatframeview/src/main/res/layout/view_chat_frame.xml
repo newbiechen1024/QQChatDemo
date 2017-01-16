@@ -23,7 +23,7 @@
             android:layout_gravity="bottom"
             android:layout_marginLeft="5dp"
             android:layout_marginRight="2dp"
-            android:background="@drawable/select_btn_send"
+            android:background="@drawable/bg_btn_send"
             android:text="发送"
             android:textColor="#ffffffff"
             android:textSize="15sp"/>
@@ -35,7 +35,7 @@
             android:layout_height="35dp"
             android:layout_alignParentLeft="true"
             android:layout_marginLeft="2dp"
-            android:background="@drawable/selector_chat_face"
+            android:background="@drawable/bg_chat_face"
             android:button="@null"/>
 
         <CheckBox
@@ -45,7 +45,7 @@
             android:layout_marginLeft="2dp"
             android:layout_marginRight="5dp"
             android:layout_toRightOf="@+id/frame_cb_face"
-            android:background="@drawable/selector_chat_more"
+            android:background="@drawable/bg_chat_more"
             android:button="@null"/>
 
         <com.newbiechen.chatframeview.widget.EmojiEditText

@@ -8,7 +8,7 @@
     android:orientation="vertical"
     tools:context="com.newbiechen.chatframeview.MainActivity">
 
-    <com.newbiechen.chatframeview.widget.RefreshListView
+    <com.newbiechen.chatframeview.widget.ChatRefreshRecyclerView
         android:id="@+id/main_lv"
         android:layout_width="match_parent"
         android:layout_height="0dp"

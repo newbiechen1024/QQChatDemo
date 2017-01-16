@@ -17,7 +17,8 @@ public class EmojiAdapter extends BaseAdapter<EmojiEntity,EmojiAdapter.EmojiView
 
     @Override
     public EmojiViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        return new EmojiViewHolder(View.inflate(parent.getContext(),R.layout.holder_emoji,null));
+        return new EmojiViewHolder(View.inflate(
+                parent.getContext(),R.layout.holder_emoji,null));
     }
 
     @Override

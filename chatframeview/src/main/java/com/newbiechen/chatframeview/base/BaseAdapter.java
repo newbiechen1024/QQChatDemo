@@ -1,14 +1,13 @@
 package com.newbiechen.chatframeview.base;
 
 import android.view.View;
-import android.view.ViewGroup;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import static android.support.v7.widget.RecyclerView.*;
+import static android.support.v7.widget.RecyclerView.Adapter;
+import static android.support.v7.widget.RecyclerView.ViewHolder;
 
 /**
  * Created by PC on 2016/9/9.
@@ -73,7 +72,7 @@ public abstract class BaseAdapter <E,VH extends ViewHolder> extends Adapter<VH> 
      * 添加单个数据
      * @param item
      */
-    public void addItem(E item){
+    public void addItems(E item){
         mItemList.add(item);
         notifyDataSetChanged();
     }
@@ -87,6 +86,10 @@ public abstract class BaseAdapter <E,VH extends ViewHolder> extends Adapter<VH> 
         notifyDataSetChanged();
     }
 
+
+    public void removeItems(E item){
+        mItemList.remove(item);
+    }
     /**
      * 移除全部数据
      */

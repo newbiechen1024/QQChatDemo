@@ -32,7 +32,6 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
     private T mContentView;
 
     private OnRefreshListener mRefreshListener;
-
     private Context mContext;
     private Scroller mScroller;
 
@@ -71,8 +70,7 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
         mContentView = createContentView(mContext);
         initHeader();
         //初始化ContentView的Layout，只允许设置为match
-        initContentViewLayout();
-        addView(mContentView);
+        initContentView();
     }
 
     //创建头部
@@ -102,11 +100,13 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
         child.measure(widthSpec,heightSpec);
     }
 
+
     //将ContentView设置为Match全屏
-    private void initContentViewLayout(){
+    private void initContentView(){
         mContentView.setLayoutParams(
                 new LayoutParams(LayoutParams.MATCH_PARENT,
                         LayoutParams.MATCH_PARENT));
+        addView(mContentView);
     }
 
     //无视Padding且全部设为Match
@@ -274,7 +274,7 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
     private void refresh(){
         if (mRefreshListener != null &&
                 mCurrentStatus != STATUS_REFRESHING){
-            mRefreshListener.onRefresh();
+            mRefreshListener.onRefresh(mHeaderHeight);
         }
         mCurrentStatus = STATUS_REFRESHING;
     }
@@ -295,13 +295,13 @@ public abstract class RefreshLayout<T extends View> extends ViewGroup{
     }
 
     /***************************abstract method***************************************/
-    public abstract T createContentView(Context context);
+    protected abstract T createContentView(Context context);
 
     //ContentView是否滑动到顶部
-    public abstract boolean isTop();
+    protected abstract boolean isTop();
 
     public interface OnRefreshListener{
-        void onRefresh();
+        void onRefresh(int refreshHeight);
     }
     /***************************public method***************************************/
 

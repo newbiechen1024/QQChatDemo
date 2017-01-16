@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="6dp">
+
+    <TextView
+        style="@style/chat_item_date"
+        android:id="@+id/msg_tv_date"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/msg_iv_icon"
+            android:layout_alignParentRight="true"
+            style="@style/chat_msg_image_icon"/>
+
+        <com.newbiechen.chatframeview.widget.EmojiTextView
+            style="@style/msg_text_content"
+            android:id="@+id/msg_tv_content"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@id/msg_iv_icon"
+            android:background="@drawable/chat_to_bg_normal"/>
+
+        <ProgressBar
+            android:id="@+id/msg_pb_load"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/msg_tv_content"
+            android:layout_marginRight="15dp"
+            style="@android:style/Widget.ProgressBar.Small.Inverse"/>
+
+        <ImageView
+            style="@style/msg_image_status"
+            android:id="@+id/msg_iv_send_fail"
+            android:layout_toLeftOf="@id/msg_tv_content"
+            android:layout_marginRight="15dp"
+            android:visibility="gone"/>
+    </RelativeLayout>
+</LinearLayout>
