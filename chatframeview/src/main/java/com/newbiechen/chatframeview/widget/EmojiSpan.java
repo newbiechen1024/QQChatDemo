@@ -1,40 +1,34 @@
 package com.newbiechen.chatframeview.widget;
 
 import android.content.Context;
-import android.content.res.TypedArray;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.text.style.DynamicDrawableSpan;
 import android.text.style.ReplacementSpan;
-import android.text.style.TtsSpan;
-import android.util.Log;
-import android.util.LruCache;
 import android.util.TypedValue;
 
-import com.newbiechen.chatframeview.R;
-
 import java.lang.ref.WeakReference;
-import java.lang.reflect.Type;
 
 /**
  * Created by PC on 2016/12/4.
+ * 绘制Emoji到TextView上
  */
 
 public class EmojiSpan extends ReplacementSpan {
-    //设置默认的间距,被不负责任的我固定死了~~~,还用的是px
+    //设置默认的间距,被不负责任的我固定死了。
     private static final int LEADING_TOP = 3;
     private static final int LEADING_BOTTOM = 6;
+    //对位移进行修正。（不添加的话，Emoji与文字相互之间有偏移，而不是基于基准线）
+    private static final int ALERT_VALUE = 3;
     //获取Emoji图片的路径
     private static final String EMOJI_PATH = "drawable";
     private static final String EMOJI_NAME = "emoji_";
-    //对位置进行修正
-    private final int mAlertValue;
 
     private final Context mContext;
     private WeakReference<Drawable> mWeakReference;
     private Drawable mEmojiDrawable;
+
     private final int mEmojiCode;
     private final int mEmojiSize;
     private final int mEmojiOffset;
@@ -45,15 +39,16 @@ public class EmojiSpan extends ReplacementSpan {
         mContext = context;
         mEmojiCode = emojiCode;
         mEmojiSize = emojiSize;
-        mAlertValue = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,3,mContext.getResources().getDisplayMetrics());
-        mEmojiOffset = emojiOffset + mAlertValue;
+        mEmojiOffset = emojiOffset + getDip(ALERT_VALUE);
+
     }
 
     public Drawable getDrawable() {
         if (mEmojiDrawable == null){
             String hexStr = Integer.toHexString(mEmojiCode);
             //首先从一级缓存中获取数据
-            int resId = mContext.getResources().getIdentifier(EMOJI_NAME + hexStr,EMOJI_PATH,mContext.getPackageName());
+            int resId = mContext.getResources().getIdentifier(EMOJI_NAME + hexStr,
+                    EMOJI_PATH,mContext.getPackageName());
             mEmojiDrawable = mContext.getResources().getDrawable(resId);
             //获取图片的宽高
             int width = mEmojiDrawable.getIntrinsicWidth();
@@ -73,7 +68,7 @@ public class EmojiSpan extends ReplacementSpan {
         int scaleWidth = (int) (width * scaleFraction);
         int scaleHeight = mEmojiSize;
         //设置上间距
-        mEmojiDrawable.setBounds(0,LEADING_TOP,scaleWidth,LEADING_TOP+scaleHeight);
+        mEmojiDrawable.setBounds(0,getDip(LEADING_TOP),scaleWidth,getDip(LEADING_TOP)+scaleHeight);
     }
 
 
@@ -82,10 +77,9 @@ public class EmojiSpan extends ReplacementSpan {
         Drawable d = getCachedDrawable();
         Rect rect = d.getBounds();
         if (fm != null){
-            //mAlertValue：由于会真实的EmojiSpan会向上偏移一段距离，为了向下偏移
             fm.ascent = -rect.bottom;
             //默认设置的下间距
-            fm.descent = LEADING_BOTTOM;
+            fm.descent = getDip(LEADING_BOTTOM);
 
             //原理：移动EmojiSpan
             fm.ascent += mEmojiOffset;
@@ -138,6 +132,11 @@ public class EmojiSpan extends ReplacementSpan {
             mWeakReference = new WeakReference<>(d);
         }
         return d;
+    }
+
+    private int getDip(int px){
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
+                px,mContext.getResources().getDisplayMetrics());
     }
 
     /********************************公共方法***********************************/

@@ -1,14 +1,12 @@
 package com.newbiechen.chatframeview.utils;
 
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.util.Log;
 
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Created by PC on 2016/12/24.
+ *
  */
 
 public final class FileUtils {

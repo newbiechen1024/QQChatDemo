@@ -5,7 +5,9 @@ package com.newbiechen.chatframeview.entity;
  */
 
 public class FaceEntity {
+    //图片的名字
     private String fileName;
+    //图片的绝对路径
     private String facePath;
 
     public String getFacePath() {

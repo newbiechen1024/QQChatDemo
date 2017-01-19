@@ -1,8 +1,6 @@
 package com.newbiechen.chatframeview.widget;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.support.v4.app.Fragment;
@@ -41,7 +39,9 @@ import static com.newbiechen.chatframeview.fragment.FaceFragment.FaceEvent;
 
 public class ChatFrameView extends RelativeLayout implements
         KeyboardStateHelper.OnKeyboardStateChangeListener{
+
     private static final String TAG = "ChatFrameView";
+
     /**
      * 当前ChatFrame的状态参数
      */
@@ -51,21 +51,29 @@ public class ChatFrameView extends RelativeLayout implements
     public static final int STATE_BOARD = 3;
 
     private Context mContext;
+    //键盘辅助类
     private KeyboardStateHelper mKeyboardHelper;
+    //工具栏的Framgent
     private Fragment mToolFragment;
     private Fragment mFaceCategoryFragment;
-    private Handler mHandler = new Handler(Looper.getMainLooper());
+
     private OnChatFrameListener mListener;
 
+    private FragmentManager mFm;
+
+    /**
+     * ChatFrameView中的控件
+     */
+    private View mRootView;
     private FrameLayout mFlBox;
     private CheckBox mCbFace;
     private CheckBox mCbMore;
     private EditText mEtInput;
     private Button mBtnSend;
-    private FragmentManager mFm;
-    private View mRootView;
 
+    //当前状态
     private int mFrameState = STATE_HIDE;
+    //输入框显示的文字
     private String mCurEditStr = "";
 
     public ChatFrameView(Context context) {
@@ -107,7 +115,7 @@ public class ChatFrameView extends RelativeLayout implements
         mKeyboardHelper = new KeyboardStateHelper(mActivity);
         mFm = mActivity.getSupportFragmentManager();
 
-        //初始化点击事件状态
+        //初始化发送点击事件状态
         changeSendState();
         //初始化Box中的Fragment
         initFragment();
@@ -177,7 +185,7 @@ public class ChatFrameView extends RelativeLayout implements
     }
 
     /**
-     * 设置Button是否可点击
+     * 设置发送键Button是否可点击
      */
     private void changeSendState(){
         if (mCurEditStr.equals("")){
@@ -280,6 +288,11 @@ public class ChatFrameView extends RelativeLayout implements
 
     @Override
     public void onKeyboardClosed() {
+        /**
+         * 隐藏键盘有两种情况
+         * 1. 当键盘显示时候隐藏
+         * 2. 当切换到工具栏的时候隐藏
+         */
         if (mFrameState == STATE_BOARD){
             mFrameState = STATE_HIDE;
         }
@@ -311,6 +324,10 @@ public class ChatFrameView extends RelativeLayout implements
         return savedState;
     }
 
+    /**
+     * 使用了EventBus,使ChatFrame与FaceCategoryFragment解耦。
+     * @param event
+     */
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEmojiEvent(EmojiEvent event) {
         EmojiEntity entity = event.getEmojiEntitiy();
@@ -329,6 +346,9 @@ public class ChatFrameView extends RelativeLayout implements
         }
     }
 
+    /**
+     * 重绘的时候保存当前状态
+     */
     static class SavedState extends BaseSavedState {
         String curEditStr;
         int frameState;
@@ -376,6 +396,10 @@ public class ChatFrameView extends RelativeLayout implements
         void onFaceSelected(FaceEntity face);
     }
 
+
+    /**
+     * 由于接口的方法太多，所以制作多个抽象类
+     */
     public abstract class OnKeyboardListener implements OnChatFrameListener{
 
         @Override
@@ -423,6 +447,7 @@ public class ChatFrameView extends RelativeLayout implements
         }
     }
     /*****************************公共方法********************************************/
+
     /**
      * 设置监听器
      * @param listener

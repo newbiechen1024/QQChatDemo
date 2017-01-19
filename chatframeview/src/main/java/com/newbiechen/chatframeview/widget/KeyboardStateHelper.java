@@ -14,14 +14,19 @@ import com.newbiechen.chatframeview.utils.ScreenUtils;
 
 public class KeyboardStateHelper implements ViewTreeObserver.OnGlobalLayoutListener{
     private static final String TAG = "KeyboardStateHelper";
+
     private AppCompatActivity mActivity;
-    private OnKeyboardStateChangeListener mStateChangeListener;
     private InputMethodManager mImm;
+    private OnKeyboardStateChangeListener mStateChangeListener;
+
     private boolean isKeyboardUp = false;
+    //判断键盘是否正在隐藏
+    private boolean isHiding = false;
 
     public KeyboardStateHelper(AppCompatActivity activity) {
         mActivity = activity;
         mImm = (InputMethodManager) mActivity.getSystemService(Context.INPUT_METHOD_SERVICE);
+        //监听
         mActivity.getWindow().getDecorView().getViewTreeObserver()
                 .addOnGlobalLayoutListener(this);
     }
@@ -52,6 +57,7 @@ public class KeyboardStateHelper implements ViewTreeObserver.OnGlobalLayoutListe
             if (mStateChangeListener != null){
                 mStateChangeListener.onKeyboardClosed();
             }
+            isHiding = false;
         }
     }
 
@@ -81,7 +87,8 @@ public class KeyboardStateHelper implements ViewTreeObserver.OnGlobalLayoutListe
      * 隐藏软键盘
      */
     public void hideKeyboard(){
-        if (isKeyboardUp){
+        if (isKeyboardUp && !isHiding){
+            isHiding = true;
             mImm.toggleSoftInput(0,InputMethodManager.HIDE_NOT_ALWAYS);
         }
     }

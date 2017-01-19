@@ -23,12 +23,16 @@ import org.greenrobot.eventbus.EventBus;
 
 public class EmojiFragment extends BaseFragment {
     private static final String TAG = "EmpojiFragment";
+    //每行显示多少个Emoji表情
     private static final int EMOJI_COL = 8;
+
     private RecyclerView mRvContent;
     private EmojiAdapter mEmojiAdapter;
+
     @Override
     protected View onCreateContentView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_face,container,false);
+        View v = inflater.inflate(
+                R.layout.fragment_face,container,false);
         return v;
     }
 
@@ -45,6 +49,7 @@ public class EmojiFragment extends BaseFragment {
 
     private void setUpRecyclerView(){
         mEmojiAdapter = new EmojiAdapter();
+        //添加所有存在的Emoji
         mEmojiAdapter.addItems(EmojiHandler.getEmojiCodesList());
 
         mRvContent.setLayoutManager(new GridLayoutManager(getContext(),EMOJI_COL));

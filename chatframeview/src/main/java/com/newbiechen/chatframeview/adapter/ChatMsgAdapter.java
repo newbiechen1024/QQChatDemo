@@ -1,10 +1,15 @@
 package com.newbiechen.chatframeview.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
-import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.ImageSpan;
 import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +30,8 @@ import java.util.regex.Matcher;
  */
 
 public class ChatMsgAdapter extends BaseAdapter<ChatMsgEntity,ChatMsgAdapter.ChatMsgViewHolder> {
+    private static final String TAG = "ChatMsgAdapter";
+
     private static final int SENDER = 0;
     private static final int REPLY = 1;
 
@@ -43,6 +50,7 @@ public class ChatMsgAdapter extends BaseAdapter<ChatMsgEntity,ChatMsgAdapter.Cha
         else {
             layout = R.layout.adapter_msg_left;
         }
+
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(layout,parent,false);
         return new ChatMsgViewHolder(view);
@@ -79,14 +87,26 @@ public class ChatMsgAdapter extends BaseAdapter<ChatMsgEntity,ChatMsgAdapter.Cha
                     chatMsgEntity.getContent()));
         }
         else if (chatMsgEntity.getMsgType() == ChatMsgEntity.TYPE_IMG){
-            String imgUrl = chatMsgEntity.getContent();
-            //获取图片地址
-            //...
+            final String imgPath = chatMsgEntity.getContent();
+            SpannableStringBuilder builder = new SpannableStringBuilder(imgPath);
+
+            Bitmap bitmap = BitmapFactory.decodeFile(imgPath);
+            ImageSpan imageSpan = new ImageSpan(mContext,bitmap);
+            builder.setSpan(imageSpan,0,builder.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.setSpan(new ClickableSpan() {
+                @Override
+                public void onClick(View widget) {
+
+                }
+            },0,builder.length(),Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            holder.tvContent.setText(builder);
+            //这样点击事件才有作用。如果想改变点击事件的颜色，就必须重写LinkMovementMethod
+            holder.tvContent.setMovementMethod(LinkMovementMethod.getInstance());
         }
     }
 
-    private SpannableString setTextHighLight(String str){
-        SpannableString spanString = new SpannableString(str);
+    private SpannableStringBuilder setTextHighLight(String str){
+        SpannableStringBuilder spanString = new SpannableStringBuilder(str);
         //每句话全部用正则表达式检查一遍
         for (PatternUtils.PatternType patternType : PatternUtils.PatternType.values()){
             Matcher matcher = PatternUtils.pattern(str,patternType);

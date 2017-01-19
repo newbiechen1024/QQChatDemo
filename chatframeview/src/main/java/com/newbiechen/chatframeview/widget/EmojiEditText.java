@@ -2,20 +2,16 @@ package com.newbiechen.chatframeview.widget;
 
 import android.content.Context;
 import android.content.res.TypedArray;
-import android.renderscript.BaseObj;
 import android.support.v7.widget.AppCompatEditText;
-import android.text.Editable;
 import android.text.InputFilter;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.TextWatcher;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.widget.Toast;
 
+import com.newbiechen.chatframeview.R;
 import com.newbiechen.chatframeview.utils.EmojiFilter;
 import com.newbiechen.chatframeview.utils.EmojiHandler;
-import com.newbiechen.chatframeview.R;
 
 /**
  * Created by PC on 2016/12/4.
@@ -96,7 +92,7 @@ public class EmojiEditText extends AppCompatEditText {
     }
 
     /**
-     * 将输入含有Emoji的编码，进行转换
+     * 将输入含有Emoji编码的文字进行转换
      * @param text
      */
     private CharSequence getEmojiText(CharSequence text){
@@ -108,7 +104,8 @@ public class EmojiEditText extends AppCompatEditText {
 
     private void updateEmojiText(Spannable spannable){
         if (!isUseDefaultMode && !isBanEmoji){
-            EmojiHandler.textToEmoji(getContext(),spannable,mEmojiSize , mEmojiOffset);
+            EmojiHandler.textToEmoji(getContext(),
+                    spannable,mEmojiSize , mEmojiOffset);
         }
     }
 

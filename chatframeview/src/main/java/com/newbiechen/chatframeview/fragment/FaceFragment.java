@@ -78,7 +78,7 @@ public class FaceFragment extends BaseFragment {
             @Override
             public void itemClick(View view, int pos) {
                 EventBus.getDefault().
-                        post(mFaceAdapter.getItem(pos));
+                        post(new FaceEvent(mFaceAdapter.getItem(pos)));
             }
         });
     }

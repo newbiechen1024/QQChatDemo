@@ -6,9 +6,10 @@ import java.util.Date;
 
 /**
  * Created by PC on 2017/1/12.
+ * 日期转换类
  */
 
-public class DateUtils {
+public final class DateUtils {
 
     public static final String FORMAT_TIME = "HH:mm:ss";
     public static final String FORAMT_DATE = "yyyy-MM-dd";

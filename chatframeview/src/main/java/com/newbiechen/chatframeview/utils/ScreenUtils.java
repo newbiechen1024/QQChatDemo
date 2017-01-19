@@ -7,9 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
 
 /**
- * Created by PC on 2016/11/19.
- * 作者：newbiechen
- * 邮箱：newbiechen@gmail.com
+ * Created by newbiechen on 2016/11/19.
  */
 
 public class ScreenUtils {

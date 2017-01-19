@@ -1,7 +1,6 @@
 package com.newbiechen.chatframeview.utils;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.Spanned;
@@ -15,12 +14,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeoutException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Created by PC on 2016/12/4.
+ * String转换成Emoji工具
  */
 
 public class EmojiHandler {
@@ -28,7 +25,9 @@ public class EmojiHandler {
     private static EmojiHandler sEmojiHandler;
     private static SparseArray<EmojiEntity> sEmojiEntityArray;
     private static Context sContext;
+    //内置的Emoji
     private static NormalEmoji sNormalEmoji;
+
     private EmojiHandler(){
         initEmoji();
     }
@@ -54,7 +53,6 @@ public class EmojiHandler {
      * @param text
      */
     private static void removeOldEmojiSpan(Spannable text){
-        //删除旧的EmojiSpan
         EmojiSpan [] oldEmojiSpans = text.getSpans(0,text.length(),EmojiSpan.class);
         for (int i=0; i< oldEmojiSpans.length; ++i){
             text.removeSpan(oldEmojiSpans[i]);
@@ -65,8 +63,9 @@ public class EmojiHandler {
      * 内置的Emoji
      */
     public static class NormalEmoji{
-
+        //Emoji图片的位置
         private static final String EMOJI_PATH = "drawable";
+        //Emoji的图片名
         private static final String EMOJI_NAME = "emoji_";
 
         private static int EMOJI_START_EXTENT = 0x1f600;
@@ -113,6 +112,19 @@ public class EmojiHandler {
             return isEmoji;
         }
 
+        //判断是否存在于内置的Emoji中
+        private boolean isEmojiIconExist(int code){
+            String hexStr = Integer.toHexString(code);
+            int resId = sContext.getResources().
+                    getIdentifier(EMOJI_NAME+hexStr,EMOJI_PATH,sContext.getPackageName());
+            if (resId == NO_EMOJI_ICON){
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
         /*************************************************************/
         SparseArray<EmojiEntity> getEmojiEntityArray() {
             return mEmojiEntityArray;
@@ -134,26 +146,21 @@ public class EmojiHandler {
             }
         }
 
+        /**
+         * 添加额外的Emoji
+         * @param emojiEntityList
+         */
         public void addEmojiEntity(List<EmojiEntity> emojiEntityList){
             for (EmojiEntity entity : emojiEntityList){
-                int code = entity.getCode();
-                if (mEmojiEntityArray.get(code) == null &&
-                        isEmojiIconExist(code)){
-                    mEmojiEntityArray.append(code,entity);
-                }
+                addEmojiEntity(entity);
             }
         }
 
-
-        private boolean isEmojiIconExist(int code){
-            String hexStr = Integer.toHexString(code);
-            int resId = sContext.getResources().
-                    getIdentifier(EMOJI_NAME+hexStr,EMOJI_PATH,sContext.getPackageName());
-            if (resId == NO_EMOJI_ICON){
-                return false;
-            }
-            else {
-                return true;
+        public void addEmojiEntity(EmojiEntity entity){
+            int code = entity.getCode();
+            if (mEmojiEntityArray.get(code) == null &&
+                    isEmojiIconExist(code)){
+                mEmojiEntityArray.append(code,entity);
             }
         }
     }
@@ -182,7 +189,7 @@ public class EmojiHandler {
     }
 
     /**
-     * 将text中的Emoji，转换成其他文字表示。
+     * 将text中的Emoji，转换成指定文字表示。
      * 主要用于网络交互。
      * @param text
      * @return
@@ -200,7 +207,7 @@ public class EmojiHandler {
         return builder.toString();
     }
 
-    //获取
+    //获取当前存储的Emoji
     public static List<EmojiEntity> getEmojiCodesList(){
         ArrayList<EmojiEntity> emojiEntityList = new ArrayList<>(sEmojiEntityArray.size());
         for (int i=0; i<sEmojiEntityArray.size(); ++i){
@@ -209,6 +216,7 @@ public class EmojiHandler {
         return emojiEntityList;
     }
 
+    //移除所有Emoji
     public static String getNoEmojiStr(CharSequence text){
         StringBuilder builder = new StringBuilder(text);
         //遍历所有的文字
@@ -222,7 +230,19 @@ public class EmojiHandler {
         return builder.toString();
     }
 
-    public static NormalEmoji getDefaultEmoji(){
-        return sNormalEmoji;
+
+    /**
+     * @param emojiNameMap
+     */
+    public static void changeEmojiName(HashMap<Integer,String> emojiNameMap){
+        sNormalEmoji.changeEmojiName(emojiNameMap);
+    }
+
+    public static void addEmojiEntity(List<EmojiEntity> emojiEntityList){
+        sNormalEmoji.addEmojiEntity(emojiEntityList);
+    }
+
+    public static void addEmojiEntity(EmojiEntity entity){
+        sNormalEmoji.addEmojiEntity(entity);
     }
 }

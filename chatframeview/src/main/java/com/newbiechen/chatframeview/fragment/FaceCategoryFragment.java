@@ -1,29 +1,23 @@
 package com.newbiechen.chatframeview.fragment;
 
-import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 
 import com.newbiechen.chatframeview.R;
 import com.newbiechen.chatframeview.adapter.FaceCategoryAdapter;
 import com.newbiechen.chatframeview.base.BaseAdapter;
 import com.newbiechen.chatframeview.base.BaseFragment;
 import com.newbiechen.chatframeview.entity.FaceEntity;
-import com.newbiechen.chatframeview.utils.ImageFileFilter;
 import com.newbiechen.chatframeview.utils.FileUtils;
+import com.newbiechen.chatframeview.utils.ImageFileFilter;
 import com.newbiechen.chatframeview.widget.FaceCategoryRecyclerView;
 
 import java.io.File;
@@ -35,6 +29,7 @@ import java.util.ArrayList;
 
 public class FaceCategoryFragment extends BaseFragment {
     public static final String TAG = "FaceCategoryFragment";
+    //SD卡上获取外置图片的文件夹名字
     private static final String FACE_FILE_NAME = "FaceIconStorage";
 
     private ViewPager mVp;
@@ -42,7 +37,6 @@ public class FaceCategoryFragment extends BaseFragment {
     private FaceCategoryAdapter mFaceCategoryAdapter;
 
     private EmojiFragment mEmojiFragment;
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private final ArrayList<Fragment> mFragmentList = new ArrayList<>();
     private final ArrayList<FaceEntity> mFaceCategoryList = new ArrayList<>();
@@ -94,35 +88,27 @@ public class FaceCategoryFragment extends BaseFragment {
                 File [] imgs = category.listFiles(new ImageFileFilter());
                 //判断目录下是否存在图片
                 if (imgs.length != 0){
-                    //加入Emoji的图片
 
-                    //如果存在图片，则创建Fragment
+                    //如果存在图片，则创建FaceFragment
                     String categoryPath = category.getAbsolutePath();
                     Fragment fragment = FaceFragment.newInstance(categoryPath);
                     mFragmentList.add(fragment);
 
                     //创建目录的封面
-                    File bgImage = imgs[0];
+                    File bgImage = imgs[0];   //选择第一张图片
                     FaceEntity entity = new FaceEntity();
                     entity.setFileName(bgImage.getName());
                     entity.setFacePath(bgImage.getAbsolutePath());
                     mFaceCategoryList.add(entity);
 
-                    //显示
+                    //显示表情目录指示器
                     mRvIndicator.setVisibility(View.VISIBLE);
                 }
             }
 
         }
-        /**
-         * 后面的任务：
-         * 2、获取每个文件夹的第一个图片，作为Indicator，装进Indicator文件夹中
-         * 3、解决点击事件的问题
-         * 4、解决销毁重建的问题
-         * 5、将Emoji设置为对象可能会更好一点（之后优化的问题）
-         */
-        setUpIndicator();
 
+        setUpIndicator();
         mVp.setAdapter(new FacePageAdpter(getChildFragmentManager()));
     }
 
@@ -136,6 +122,8 @@ public class FaceCategoryFragment extends BaseFragment {
 
     @Override
     protected void initListener() {
+        //将第一个指示器目录设为选中状态。（使用监听器的原因是，必须当LinearManager加载完的时候，才能使用selectItem()）
+        //所以这个监听的作用就是：当LinearManager加载item完成的回调。
         mRvIndicator.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
             @Override
             public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
@@ -158,10 +146,10 @@ public class FaceCategoryFragment extends BaseFragment {
 
             }
         });
+        //点击item切换表情
         mFaceCategoryAdapter.setOnItemClickListener(new BaseAdapter.OnItemClickListener() {
             @Override
             public void itemClick(View view, int pos) {
-
                 //选中
                 mRvIndicator.selectItem(pos);
                 //切换

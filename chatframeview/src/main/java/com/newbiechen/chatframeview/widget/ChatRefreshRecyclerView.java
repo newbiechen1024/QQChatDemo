@@ -4,6 +4,7 @@ import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
+import android.view.View;
 
 /**
  * Created by PC on 2017/1/12.
@@ -51,8 +52,10 @@ public class ChatRefreshRecyclerView extends RefreshLayout<RecyclerView> {
                 LinearLayoutManager lm = (LinearLayoutManager) mRecyclerView.getLayoutManager();
                 lastVisibleItem = lm.findLastVisibleItemPosition();
                 totalItem = mRecyclerView.getAdapter().getItemCount() - 1;
-                itemTop = lm.findViewByPosition(lastVisibleItem)
-                        .getTop();
+                View view = lm.findViewByPosition(lastVisibleItem);
+                if (view != null){
+                    itemTop = view.getTop();
+                }
             }
             else {
                 throw new ClassCastException("RecyclerView's LayoutManager must be LinearLayout");
